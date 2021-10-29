@@ -15,7 +15,7 @@ const pin = async(authHeader: string, cid: string) => {
       },
       json: {
         cid: cid,
-        name: 'heco-live-file.txt'
+        name: 'near-live-file.txt'
       }
     }
   )

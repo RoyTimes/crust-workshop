@@ -1,42 +1,31 @@
 import { randomBytes } from 'tweetnacl';
-import {ethers} from 'ethers';
-import { u8aToHex } from '@polkadot/util';
-require('dotenv').config()
+import { KeyPair } from 'near-api-js';
+import { baseEncode } from 'borsh';
+import { u8aToHex } from '@polkadot/util'
 
 import upload from './upload'
 import pin from './pin'
 
-
 const main = async () => {
 
-  // 1. generate an Auth Header
+  // 1. generate authHeader 
+  const keyPair = KeyPair.fromRandom('ed25519');
 
-  // get the seed phrase
-  const seed = process.env.SEED;
-  if (!seed) {
-    throw new Error('seed not found');
-  }
+  const addressRaw = keyPair.getPublicKey();
 
-  // generate a signature
-  const keypair = ethers.Wallet.fromMnemonic(seed);
+  const address = baseEncode(addressRaw.data);
+  console.log(address);
 
-  // console.log(keypair.address);
+  const sigRaw = keyPair.sign(Buffer.from(address));
+  const sig = u8aToHex(sigRaw.signature).substring(2);
 
-  const sig = await keypair.signMessage(keypair.address);
+  const authHeaderRaw = `near-${address}:${sig}`;
 
-  // console.log("signature", sig);
-
-  // compile the auth header
-  // Authorization: Bear <base64(ChainType-PubKey:SignedMsg)>
-  const authHeaderRaw = `eth-${keypair.address}:${sig}`;
-  // console.log("authHeaderRaw", authHeaderRaw);
-
+  console.log(authHeaderRaw);
   const authHeader = Buffer.from(authHeaderRaw).toString('base64');
 
-  // console.log('authHeader', authHeader);
 
   // 2. post some content to the IPFS network 
-
   const content = randomBytes(5000);
   const contentHex = u8aToHex(content);
 
