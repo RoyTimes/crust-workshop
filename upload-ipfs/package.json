@@ -1,0 +1,16 @@
+{
+  "name": "upload-ipfs",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "@polkadot/keyring": "^7.5.1",
+    "@polkadot/util": "^7.5.1",
+    "@polkadot/util-crypto": "^7.5.1",
+    "dotenv": "^10.0.0",
+    "ethers": "^5.5.0",
+    "got": "^11.8.2",
+    "ipfs-http-client": "^53.0.1",
+    "tweetnacl": "^1.0.3",
+    "typescript": "^4.4.4"
+  }
+}
