@@ -8,32 +8,31 @@ import pin from './pin'
 
 const main = async () => {
 
-  // 1. generate authHeader 
+  // 1. get authheader 
+
   const keyPair = KeyPair.fromRandom('ed25519');
 
-  const addressRaw = keyPair.getPublicKey();
+  // get address
+  const addressRaw = keyPair.getPublicKey().toString();
+  const address = addressRaw.substring(8);
+  
+  // get singature 
+  const {signature} = keyPair.sign(Buffer.from(address));
+  const sig = u8aToHex(signature).substring(2);
 
-  const address = baseEncode(addressRaw.data);
-  console.log(address);
-
-  const sigRaw = keyPair.sign(Buffer.from(address));
-  const sig = u8aToHex(sigRaw.signature).substring(2);
-
+  // Authorization: Bear <base64(ChainType-PubKey:SignedMsg)>
+  // compile a authHeader
   const authHeaderRaw = `near-${address}:${sig}`;
-
-  console.log(authHeaderRaw);
   const authHeader = Buffer.from(authHeaderRaw).toString('base64');
 
-
-  // 2. post some content to the IPFS network 
+  // 2. post files onto IPFS/Crust
   const content = randomBytes(5000);
   const contentHex = u8aToHex(content);
 
   const cid = await upload(authHeader, contentHex);
-  console.log("CID", cid);
+  console.log(cid);
 
   const result = await pin(authHeader, cid.toString());
-
   console.log(JSON.parse(result));
 }
 
